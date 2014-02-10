@@ -14,6 +14,7 @@
 (defvar *joueurs* (make-joueur :x (random *x*) :y (random *y*)))
 
 (defun dalek-deplacement (dalek joueur)
+  "Effectue le deplacement vers le JOUEUR"
   (cond
     ((> (dalek-x dalek) (joueur-x joueur)) 
      (decf (dalek-x dalek)))
@@ -25,13 +26,13 @@
     ((< (dalek-y dalek) (joueur-y joueur)) 
      (incf (dalek-y dalek)))))
 
-;; (setf (dalek-y dalek) (+ (joueur-y joueur) 1)))))
-
 (defun init-dalek (n)
+  "Rajoute N daleks a la liste *DALEKS* avec une position RANDOM." 
   (loop for i from 1 to n
        do (push (make-dalek :x (random *x*) :y (random *y*)) *daleks*)))
 
 (defun deplace-daleks ()
+  "Deplace les daleks vers le joueur"
   (loop for i in *daleks*
        do (dalek-deplacement i *joueurs*)))
 
