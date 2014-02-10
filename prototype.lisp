@@ -59,5 +59,13 @@
 	(#\z t)				;zap
 	(#\t t)				;teleport
 	(#\q t))))			;quit
-      
-    
+
+;; (defun teleporte (joueur)
+;;   "Teleporte un joueur a un point safe."
+;;   ())
+
+;; (defun affiche-jeu ()
+;;   (loop for i from 1 upto *y*
+;;      do (loop for j from 1 upto *x*
+;; 	   do
+
