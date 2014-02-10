@@ -36,3 +36,28 @@
   (loop for i in *daleks*
        do (dalek-deplacement i *joueurs*)))
 
+(defun deplacement-valide-p (touche)
+  "Prend un char et teste pour savoir si la touche est bonne."
+  (case touche
+    (#\j t)				;A la vim
+    (#\k t)
+    (#\l t)
+    (#\h t)
+    (#\y t)
+    (#\u t)
+    (#\b t)
+    (#\n t)
+    (#\w t)				;A la fps
+    (#\a t)
+    (#\s t)
+    (#\d t)))
+
+(defun touche-valide-p (touche)
+  "Teste pour savoir si la touche est valide."
+  (or (deplacement-valide-p touche)
+      (case touche
+	(#\z t)				;zap
+	(#\t t)				;teleport
+	(#\q t))))			;quit
+      
+    
