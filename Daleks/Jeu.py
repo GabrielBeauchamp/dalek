@@ -23,6 +23,9 @@ class Jeu():
             self.daleks.append(Dalek())
         self.docteur.append(Docteur())
             
+    def deplaceDaleks(self):
+        for i in self.daleks:
+            i.deplacement()
              
     
 class Dalek():
@@ -42,6 +45,15 @@ class Dalek():
                 valide = True
     
     def deplacement(self):
+        for j in Jeu.docteur:
+            if self.x > j.x:
+                self.x = self.x - 1
+            if self.x < j.x:
+                self.x = self.x + 1
+            if self.y > j.y:
+                self.y = self.y - 1
+            if self.y < j.y:
+                self.y = self.y + 1
         
 
 class Docteur():
@@ -62,10 +74,21 @@ class Docteur():
         self.nbZap = 1
         self.hasZapped = False #Dans le tour, as-t'il zappe?
         
+    def deplacement(self, direction):
+        # Prend le nombre sur le pave numerique qui definie la direction.
+        
+
+ 
+#================================ MAIN===================================================
 m = Modele()
 j = Jeu()
 
-for i in Jeu.daleks:
-    print(i.x, ", ", i.y, "\n")
+for i in Jeu.docteur:
+    print(i.x, ",", i.y)
+for k in range(10):
+    j.deplaceDaleks()
+    for i in Jeu.daleks:
+        print(i.x, ", ", i.y)
+    print("==========================")
             
                         
