@@ -97,6 +97,25 @@ class Docteur():
         elif direction == 9:    # haut-droite
             self.y = self.y + 1
             self.x = self.x + 1
+
+    def toucheValide(touche):
+        if touche == "1":      # bas-gauche
+
+        elif touche == "2":    # bas
+        elif touche == "3":    # bas-droite
+
+        elif touche == "4":    # gauche
+
+        elif touche == "5":    # bouge pas
+        elif touche == "6":    # droite
+
+        elif touche == "7":    # haut-gauche
+
+        elif touche == "8":    # haut
+
+        elif touche == "9":    # haut-droite
+
+
  
 #================================ MAIN===================================================
 m = Modele()
