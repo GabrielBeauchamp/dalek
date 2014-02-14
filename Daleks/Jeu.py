@@ -76,17 +76,27 @@ class Docteur():
         
     def deplacement(self, direction):
         # Prend le nombre sur le pave numerique qui definie la direction.
-        if direction == 1:
-        elif direction == 2:
-        elif direction == 3:
-        elif direction == 4:
-        elif direction == 5:
-        elif direction == 6:
-        elif direction == 7:
-        elif direction == 8:
-        elif direction == 9:
-
-
+        if direction == 1:      # bas-gauche
+            self.y = self.y - 1
+            self.x = self.x - 1
+        elif direction == 2:    # bas
+            self.y = self.y - 1
+        elif direction == 3:    # bas-droite
+            self.y = self.y - 1
+            self.x = self.x + 1
+        elif direction == 4:    # gauche
+            self.x = self.x - 1
+        elif direction == 5:    # bouge pas
+        elif direction == 6:    # droite
+            self.x = self.x + 1
+        elif direction == 7:    # haut-gauche
+            self.y = self.y + 1
+            self.x = self.x - 1
+        elif direction == 8:    # haut
+            self.y = self.y + 1
+        elif direction == 9:    # haut-droite
+            self.y = self.y + 1
+            self.x = self.x + 1
  
 #================================ MAIN===================================================
 m = Modele()
