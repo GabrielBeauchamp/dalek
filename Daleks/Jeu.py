@@ -15,11 +15,13 @@ class Modele():
 class Jeu():
     nbDaleks = 5
     nbDalekInc = 5
+    #finPartie = False
     
     daleks = []
     docteur = []
     tas = []
     def __init__(self):
+        self.finPartie = False
         for i in range(self.nbDaleks):
             self.daleks.append(Dalek())
         self.docteur.append(Docteur())
@@ -27,7 +29,15 @@ class Jeu():
     def deplaceDaleks(self):
         for i in self.daleks:
             i.deplacement()
-             
+            
+    def collisionDaleks(self):
+        aDelete = []
+        for i in self.daleks:
+            if i.collision() == True:
+                aDelete.append(i)
+        if len(aDelete) > 0:
+            for tas in aDelete:
+                self.daleks.remove(tas)
     
 class Dalek():
     def __init__(self):
@@ -55,17 +65,27 @@ class Dalek():
                 self.y = self.y - 1
             if self.y < j.y:
                 self.y = self.y + 1
-        
+                
+    def collision(self):
+        for i in Jeu.daleks:
+            if self is i:
+                pass
+            else:
+                if self.x == i.x and self.y == i.y:
+                    t = Tas(self.x,self.y)
+                    Jeu.tas.append(t)
+                    return True
 
 class Docteur():
     def __init__(self):
+        #self.estMort = False
         valide = False
         while not valide:
             self.x = random.randrange(0,Modele.largeur)
             self.y = random.randrange(0,Modele.hauteur)
             if len(Jeu.daleks) != 0:
                 for i in Jeu.daleks:
-                    if (i.x == self.x and i.y == self.y):
+                    if i.x == self.x and i.y == self.y:
                         valide = False
                         break
                     else:
@@ -74,31 +94,59 @@ class Docteur():
                 valide = True
         self.nbZap = 1
         self.hasZapped = False #Dans le tour, as-t'il zappe ?
+     
+    def deplacementValide(self, nouvellePosX, nouvellePosY):
+         if nouvellePosX < 0 or nouvellePosX >= Modele.largeur:
+             return False
+         if nouvellePosY < 0 or nouvellePosY >= Modele.hauteur:
+             return False
+         for i in Jeu.tas:
+             if i.x == nouvellePosX and i.y == nouvellePosY:
+                 return False
+        #Regarder aussi les daleks ?
+        
+         return True
         
     def deplacement(self, direction):
         # Prend le nombre sur le pave numerique qui definie la direction.
         if direction == "1":      # bas-gauche
-            self.y = self.y + 1
-            self.x = self.x - 1
+            if self.deplacementValide(self.x - 1, self.y + 1):
+                self.y = self.y + 1
+                self.x = self.x - 1
         elif direction == "2":    # bas
-            self.y = self.y + 1
+            if self.deplacementValide(self.x, self.y + 1):
+                self.y = self.y + 1
         elif direction == "3":    # bas-droite
-            self.y = self.y + 1
-            self.x = self.x + 1
+            if self.deplacementValide(self.x + 1, self.y + 1):
+                self.y = self.y + 1
+                self.x = self.x + 1
         elif direction == "4":    # gauche
-            self.x = self.x - 1
+            if self.deplacementValide(self.x - 1, self.y):
+                self.x = self.x - 1
         elif direction == "5": # bouge pas
             pass   
         elif direction == "6":    # droite
-            self.x = self.x + 1
+            if self.deplacementValide(self.x + 1, self.y):
+                self.x = self.x + 1
         elif direction == "7":    # haut-gauche
-            self.y = self.y - 1
-            self.x = self.x - 1
+            if self.deplacementValide(self.x - 1, self.y - 1):
+                self.y = self.y - 1
+                self.x = self.x - 1
         elif direction == "8":    # haut
-            self.y = self.y - 1
+            if self.deplacementValide(self.x, self.y - 1):
+                self.y = self.y - 1
         elif direction == "9":    # haut-droite
-            self.y = self.y - 1
-            self.x = self.x + 1
+            if self.deplacementValide(self.x + 1, self.y - 1):
+                self.y = self.y - 1
+                self.x = self.x + 1
+            
+    def estMort(self, jeu):
+        for i in Jeu.daleks:
+            if self.x == i.x and self.y == i.y:
+                jeu.finPartie = True
+        for i in Jeu.tas:
+            if self.x == i.x and self.y == i.y:
+                jeu.finPartie = True
 
     def toucheValide(self,touche):
         if touche == "1":      # bas-gauche
@@ -127,6 +175,11 @@ class Docteur():
         elif touche == "9":    # haut-droite
             return True
 
+class Tas():
+    def __init__(self,x,y):
+        self.x = x
+        self.y = y
+
 
 class Affichage():
     caseVide = "-" #ce qui sera affiche quand il y a une case vide
@@ -153,6 +206,9 @@ class Affichage():
         for i in Jeu.daleks:
             self.matriceJeu[i.x][i.y] = 'x' #Ajoute les daleks dans la matrice d'affichage
             
+        for i in Jeu.tas:
+            self.matriceJeu[i.x][i.y] = '*' #Ajoute les tas dans la matrice d'affichage
+            
         for i in Jeu.docteur:
             self.matriceJeu[i.x][i.y] = 'd' #Ajoute le docteur dans la matrice d'affichage
             
@@ -170,10 +226,9 @@ m = Modele()
 j = Jeu()
 a = Affichage()
 
-for k in range(10):
+while len(j.daleks) > 0 and j.finPartie == False:
     for i in Jeu.docteur:
         print("Docteur" , i.x, ",", i.y)
-    j.deplaceDaleks()
     for i in Jeu.daleks:
         print(i.x, ", ", i.y)
     print("==========================")
@@ -181,8 +236,13 @@ for k in range(10):
     touche = input("Touche")
     toucheValide = Jeu.docteur[0].toucheValide(touche)
     if  toucheValide == True :
-        print(touche)
+        j.deplaceDaleks()
         Jeu.docteur[0].deplacement(touche)
-        print(Jeu.docteur[0].x)
+        j.collisionDaleks()
+        Jeu.docteur[0].estMort(j)
+
+        
+a.afficherJeu()
+input("GAME OVER")
     
     
