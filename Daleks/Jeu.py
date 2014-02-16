@@ -14,14 +14,17 @@ class Modele():
     
 class Jeu():
     nbDaleks = 5
-    nbDalekInc = 5
+    #nbDalekInc = 5
     #finPartie = False
     
     daleks = []
     docteur = []
     tas = []
-    def __init__(self):
+    def __init__(self, niveau, points):
         self.finPartie = False
+        self.niveau = niveau
+        self.nbDaleks *= niveau
+        self.points = points
         for i in range(self.nbDaleks):
             self.daleks.append(Dalek())
         self.docteur.append(Docteur())
@@ -34,6 +37,7 @@ class Jeu():
         aDelete = []
         for i in self.daleks:
             if i.collision() == True:
+                self.points += 5
                 aDelete.append(i)
         if len(aDelete) > 0:
             for tas in aDelete:
@@ -75,6 +79,9 @@ class Dalek():
                     t = Tas(self.x,self.y)
                     Jeu.tas.append(t)
                     return True
+        for i in Jeu.tas:
+            if self.x == i.x and self.y == i.y:
+                return True
 
 class Docteur():
     def __init__(self):
@@ -223,7 +230,7 @@ class Affichage():
  
 #================================ MAIN===================================================
 m = Modele()
-j = Jeu()
+j = Jeu(1,0)
 a = Affichage()
 
 while len(j.daleks) > 0 and j.finPartie == False:
@@ -233,11 +240,14 @@ while len(j.daleks) > 0 and j.finPartie == False:
         print(i.x, ", ", i.y)
     print("==========================")
     a.afficherJeu()
+    print("Points: ", j.points)
+    print("Niveau: ", j.niveau)
     touche = input("Touche: ")
     toucheValide = Jeu.docteur[0].toucheValide(touche)
     if  toucheValide == True :
-        j.deplaceDaleks()
+        #le docteur doit se deplacer avant les daleks !
         Jeu.docteur[0].deplacement(touche)
+        j.deplaceDaleks()
         j.collisionDaleks()
         Jeu.docteur[0].estMort(j)
 
