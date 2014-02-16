@@ -105,8 +105,8 @@ class Docteur():
                  return False
         #Regarder aussi les daleks ?
         
-         return True
-        
+         return True 
+       
     def deplacement(self, direction):
         # Prend le nombre sur le pave numerique qui definie la direction.
         if direction == "1":      # bas-gauche
@@ -192,7 +192,7 @@ class Affichage():
                 self.matriceJeu[i].append(self.caseVide)
 
     
-    def clear(self):
+    def clear(self):            # Ca, ca c'est bien. Je t'aime Francois.
         if os.sys.platform == 'win32':
             os.system("cls")
         else:
@@ -204,13 +204,13 @@ class Affichage():
                 self.matriceJeu[j][i] = self.caseVide #Vide la matrice d'affichage
                 
         for i in Jeu.daleks:
-            self.matriceJeu[i.x][i.y] = 'x' #Ajoute les daleks dans la matrice d'affichage
+            self.matriceJeu[i.x][i.y] = 'X' #Ajoute les daleks dans la matrice d'affichage
             
         for i in Jeu.tas:
             self.matriceJeu[i.x][i.y] = '*' #Ajoute les tas dans la matrice d'affichage
             
         for i in Jeu.docteur:
-            self.matriceJeu[i.x][i.y] = 'd' #Ajoute le docteur dans la matrice d'affichage
+            self.matriceJeu[i.x][i.y] = '@' #Ajoute le docteur dans la matrice d'affichage
             
     def afficherJeu(self):
         self.clear()
@@ -233,7 +233,7 @@ while len(j.daleks) > 0 and j.finPartie == False:
         print(i.x, ", ", i.y)
     print("==========================")
     a.afficherJeu()
-    touche = input("Touche")
+    touche = input("Touche: ")
     toucheValide = Jeu.docteur[0].toucheValide(touche)
     if  toucheValide == True :
         j.deplaceDaleks()
