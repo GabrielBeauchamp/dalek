@@ -1,5 +1,6 @@
 import random
 import os
+
 # Classe Modele
 
 
@@ -14,6 +15,7 @@ class Modele():
     
 class Jeu():
     nbDaleks = 5
+    nbPointsDalekMort = 5
     #nbDalekInc = 5
     #finPartie = False
     
@@ -37,7 +39,7 @@ class Jeu():
         aDelete = []
         for i in self.daleks:
             if i.collision() == True:
-                self.points += 5
+                self.points += self.nbPointsDalekMort
                 aDelete.append(i)
         if len(aDelete) > 0:
             for tas in aDelete:
@@ -90,6 +92,7 @@ class Docteur():
         while not valide:
             self.x = random.randrange(0,Modele.largeur)
             self.y = random.randrange(0,Modele.hauteur)
+            #A FAIRE : Verifier les tas !
             if len(Jeu.daleks) != 0:
                 for i in Jeu.daleks:
                     if i.x == self.x and i.y == self.y:
@@ -114,7 +117,7 @@ class Docteur():
         
          return True 
        
-    def deplacement(self, direction):
+    def deplacement(self, direction, jeu):
         # Prend le nombre sur le pave numerique qui definie la direction.
         if direction == "1":      # bas-gauche
             if self.deplacementValide(self.x - 1, self.y + 1):
@@ -146,6 +149,16 @@ class Docteur():
             if self.deplacementValide(self.x + 1, self.y - 1):
                 self.y = self.y - 1
                 self.x = self.x + 1
+        elif direction == "z":
+            self.zapper(jeu)
+    
+    def zapper(self, jeu):
+        if(self.nbZap > 0):
+            for i in jeu.daleks:
+                if (abs(i.x - self.x) <= 1) and (abs(i.y - self.y) <=1):
+                    jeu.daleks.remove(i)
+                    jeu.points += jeu.nbPointsDalekMort
+            self.nbZap -= 1
             
     def estMort(self, jeu):
         for i in Jeu.daleks:
@@ -180,6 +193,8 @@ class Docteur():
             return True
 
         elif touche == "9":    # haut-droite
+            return True
+        elif touche == "z":    # zappeur
             return True
 
 class Tas():
@@ -242,17 +257,19 @@ while len(j.daleks) > 0 and j.finPartie == False:
     a.afficherJeu()
     print("Points: ", j.points)
     print("Niveau: ", j.niveau)
+    print("Nombre de zappeur: ", j.docteur[0].nbZap)
     touche = input("Touche: ")
-    toucheValide = Jeu.docteur[0].toucheValide(touche)
+    toucheValide = j.docteur[0].toucheValide(touche)
     if  toucheValide == True :
         #le docteur doit se deplacer avant les daleks !
-        Jeu.docteur[0].deplacement(touche)
+        Jeu.docteur[0].deplacement(touche, j)
         j.deplaceDaleks()
         j.collisionDaleks()
         Jeu.docteur[0].estMort(j)
 
         
 a.afficherJeu()
+print(len(j.daleks))
 input("GAME OVER")
     
     
