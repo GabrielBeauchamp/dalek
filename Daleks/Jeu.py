@@ -92,7 +92,7 @@ class Docteur():
         while not valide:
             self.x = random.randrange(0,Modele.largeur)
             self.y = random.randrange(0,Modele.hauteur)
-            #A FAIRE : Verifier les tas !
+
             if len(Jeu.daleks) != 0:
                 for i in Jeu.daleks:
                     if i.x == self.x and i.y == self.y:
@@ -104,7 +104,28 @@ class Docteur():
                 valide = True
         self.nbZap = 1
         self.hasZapped = False #Dans le tour, as-t'il zappe ?
-     
+    
+    def teleportation(self):
+        valide = False
+        while not valide:
+            nouveauX = random.randrange(0,Modele.largeur)
+            nouveauY = random.randrange(0,Modele.hauteur)
+            for i in Jeu.daleks:
+                if abs(i.x - nouveauX) <= 1 and abs(i.y - nouveauY) <= 1:
+                    valide = False
+                    break
+                else:
+                    valide = True
+            if valide == True:
+                for i in Jeu.tas:
+                    if i.x == nouveauX and i.y == nouveauY:
+                        valide = False
+                        break;
+                    else:
+                        valide = True
+        self.x = nouveauX
+        self.y = nouveauY        
+    
     def deplacementValide(self, nouvellePosX, nouvellePosY):
          if nouvellePosX < 0 or nouvellePosX >= Modele.largeur:
              return False
@@ -149,7 +170,9 @@ class Docteur():
             if self.deplacementValide(self.x + 1, self.y - 1):
                 self.y = self.y - 1
                 self.x = self.x + 1
-        elif direction == "z":
+        elif direction == "t":    # teleportage
+            self.teleportation()
+        elif direction == "z":    # zappeur
             self.zapper(jeu)
     
     def zapper(self, jeu):
@@ -193,6 +216,8 @@ class Docteur():
             return True
 
         elif touche == "9":    # haut-droite
+            return True
+        elif touche == "t":    # teleportage
             return True
         elif touche == "z":    # zappeur
             return True
