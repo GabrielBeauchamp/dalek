@@ -23,18 +23,21 @@ class Jeu():
     tas = []
     def __init__(self, niveau, points):
         self.finPartie = False
+        debutNiveau(niveau, points)
+        self.docteur.append(Docteur())
+    
+    def debutNiveau(self,niveau, points):
         self.niveau = niveau
         self.nbDaleks = self.nbDalekInc * niveau
         self.points = points
         for i in range(self.nbDaleks):
             self.daleks.append(Dalek())
-        if len(self.docteur) == 0:    
-            self.docteur.append(Docteur())
     
     def changementNiveau(self):
+        
         for i in self.docteur:
             i.nbZap += 1
-        self.__init__(self.niveau+1,self.points)
+        self.debutNiveau(self.niveau+1,self.points)
             
     def deplaceDaleks(self):
         for i in self.daleks:
@@ -108,7 +111,6 @@ class Docteur():
             else:
                 valide = True
         self.nbZap = 0 #Pour le niveau 0
-        self.hasZapped = False #Dans le tour, as-t'il zappe ?
     
     def teleportation(self):
         valide = False
@@ -128,6 +130,7 @@ class Docteur():
                         break;
                     else:
                         valide = True
+                        #deux fois la meme place
         self.x = nouveauX
         self.y = nouveauY        
     
