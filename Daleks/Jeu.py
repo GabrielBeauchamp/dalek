@@ -14,9 +14,8 @@ class Modele():
     
     
 class Jeu():
-    nbDaleks = 5
     nbPointsDalekMort = 5
-    #nbDalekInc = 5
+    nbDalekInc = 5
     #finPartie = False
     
     daleks = []
@@ -25,11 +24,17 @@ class Jeu():
     def __init__(self, niveau, points):
         self.finPartie = False
         self.niveau = niveau
-        self.nbDaleks *= niveau
+        self.nbDaleks = self.nbDalekInc * niveau
         self.points = points
         for i in range(self.nbDaleks):
             self.daleks.append(Dalek())
-        self.docteur.append(Docteur())
+        if len(self.docteur) == 0:    
+            self.docteur.append(Docteur())
+    
+    def changementNiveau(self):
+        for i in self.docteur:
+            i.nbZap += 1
+        self.__init__(self.niveau+1,self.points)
             
     def deplaceDaleks(self):
         for i in self.daleks:
@@ -102,7 +107,7 @@ class Docteur():
                         valide = True
             else:
                 valide = True
-        self.nbZap = 1
+        self.nbZap = 0 #Pour le niveau 0
         self.hasZapped = False #Dans le tour, as-t'il zappe ?
     
     def teleportation(self):
@@ -270,27 +275,31 @@ class Affichage():
  
 #================================ MAIN===================================================
 m = Modele()
-j = Jeu(1,0)
+j = Jeu(0,0) #On creer le jeu au niveau zero
 a = Affichage()
 
-while len(j.daleks) > 0 and j.finPartie == False:
-    for i in Jeu.docteur:
-        print("Docteur" , i.x, ",", i.y)
-    for i in Jeu.daleks:
-        print(i.x, ", ", i.y)
-    print("==========================")
-    a.afficherJeu()
-    print("Points: ", j.points)
-    print("Niveau: ", j.niveau)
-    print("Nombre de zappeur: ", j.docteur[0].nbZap)
-    touche = input("Touche: ")
-    toucheValide = j.docteur[0].toucheValide(touche)
-    if  toucheValide == True :
-        #le docteur doit se deplacer avant les daleks !
-        Jeu.docteur[0].deplacement(touche, j)
-        j.deplaceDaleks()
-        j.collisionDaleks()
-        Jeu.docteur[0].estMort(j)
+while j.finPartie == False:
+    print(len(j.daleks))
+    j.changementNiveau()
+    while len(j.daleks) > 0 and j.finPartie == False:
+        for i in Jeu.docteur:
+            print("Docteur" , i.x, ",", i.y)
+        for i in Jeu.daleks:
+            print(i.x, ", ", i.y)
+        print("==========================")
+        a.afficherJeu()
+        print("Points: ", j.points)
+        print("Niveau: ", j.niveau)
+        print("Nombre de zappeur: ", j.docteur[0].nbZap)
+        touche = input("Touche: ")
+        toucheValide = j.docteur[0].toucheValide(touche)
+        if  toucheValide == True :
+            #le docteur doit se deplacer avant les daleks !
+            Jeu.docteur[0].deplacement(touche, j)
+            j.deplaceDaleks()
+            j.collisionDaleks()
+            Jeu.docteur[0].estMort(j)
+    
 
         
 a.afficherJeu()
