@@ -8,6 +8,10 @@
   x
   y)
 
+(defstruct tas-feraille
+  x
+  y)
+
 (defparameter *x* 20 "Taille en X de l'arene")
 (defparameter *y* 20 "Taille en Y de l'arene")
 (defvar *daleks* ())
@@ -26,6 +30,10 @@
     ((< (dalek-y dalek) (joueur-y joueur)) 
      (incf (dalek-y dalek)))))
 
+;; (defun check-colision ()
+;;   (loop for i in *daleks*
+;;      do (if 
+	 
 (defun init-dalek (n)
   "Rajoute N daleks a la liste *DALEKS* avec une position RANDOM." 
   (loop for i from 1 to n

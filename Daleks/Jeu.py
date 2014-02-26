@@ -491,8 +491,8 @@ class Controleur():
 
 #================================ MAIN===================================================
 if __name__ == '__main__':
-    #t = input("[c]onsole ou [g]raphique")
-    c = Controleur("g")
+    t = input("[c]onsole ou [g]raphique")
+    c = Controleur("t")
 
 
         
