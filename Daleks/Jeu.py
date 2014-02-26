@@ -3,8 +3,53 @@ import os
 from tkinter import *
 
 class VueTkinter():
-    pass
+    def __init__(self, parent):
+        self.iconeDocteur = "@"
+        #self.caseVide = "-"
+        self.espacePixel = 20
+        self.parent = parent
+        self.matriceJeu = []
+        for i in range(self.parent.getLargeur()):
+            self.matriceJeu.append([])
+            for j in range(self.parent.getHauteur()):
+                self.matriceJeu[i].append("")
 
+        self.root = Tk()
+        self.root.title("Dalek qui est le fun quand on y joue avec nos culculatrices")
+        self.canevas = Canvas(self.root, height=self.parent.getHauteur() * self.espacePixel, width=self.parent.getLargeur() * self.espacePixel, bg ="white")
+        self.canevas.pack()
+        self.actualiserPlateauJeu()
+        self.dessinerGrille()
+        self.afficherJeu()
+        
+    def actualiserPlateauJeu(self):
+        for i in range(self.parent.getHauteur()):
+            for j in range(self.parent.getLargeur()):
+                self.matriceJeu[j][i] = "" #Vide la matrice d'affichage
+                
+        for i in self.parent.getDaleks():
+            #print("daleks ", i.x, " ", i.y)
+            self.matriceJeu[i.x][i.y] = 'X'  #Ajoute les daleks dans la matrice d'affichage
+            
+        for i in self.parent.getTas():
+            #print("tas ", i.x, " ", i.y)
+            self.matriceJeu[i.x][i.y] = '*' #Ajoute les tas dans la matrice d'affichage
+            
+        for i in self.parent.getDocteur():
+            #print("docteur ", i.x, " ", i.y)
+            self.matriceJeu[i.x][i.y] = self.iconeDocteur #Ajoute le docteur dans la matrice d'affichage
+    
+    def dessinerGrille(self):
+        for i in range(self.parent.getLargeur()):
+            self.canevas.create_line(i*self.espacePixel,0,i*self.espacePixel,self.parent.getHauteur() * self.espacePixel)
+        for i in range(self.parent.getHauteur()):
+            self.canevas.create_line(0, i*self.espacePixel,self.parent.getLargeur() * self.espacePixel,i*self.espacePixel)
+            
+    def afficherJeu(self):
+         for i in range(self.parent.getHauteur()):
+            for j in range(self.parent.getLargeur()):
+                self.canevas.create_text(j*self.espacePixel+self.espacePixel/2, i*self.espacePixel+self.espacePixel/2, text= self.matriceJeu[j][i])
+                
 class VueConsole():
     iconeDocteur = "@"
     caseVide = "-" * len(iconeDocteur) #ce qui sera affiche quand il y a une case vide
@@ -35,11 +80,11 @@ class VueConsole():
                 
         for i in self.parent.getDaleks():
             #print("daleks ", i.x, " ", i.y)
-            self.matriceJeu[i.x][i.y] = 'X' * (len(self.iconeDocteur) -1) #Ajoute les daleks dans la matrice d'affichage
+            self.matriceJeu[i.x][i.y] = 'X' #Ajoute les daleks dans la matrice d'affichage
             
         for i in self.parent.getTas():
             #print("tas ", i.x, " ", i.y)
-            self.matriceJeu[i.x][i.y] = '*'  * (len(self.iconeDocteur) -1) #Ajoute les tas dans la matrice d'affichage
+            self.matriceJeu[i.x][i.y] = '*' #Ajoute les tas dans la matrice d'affichage
             
         for i in self.parent.getDocteur():
             #print("docteur ", i.x, " ", i.y)
@@ -91,7 +136,6 @@ class VueConsole():
         print("Vous etes mort.\nVotre score est de: ", self.parent.getPoints())
         return input("Appuyer sur une touche pour retourner au menu...")
     
-
 class Modele():
     highscore = {}
     def __init__(self, parent):
@@ -319,25 +363,31 @@ class Docteur():
             if self.x == i.x and self.y == i.y:
                 self.parent.finPartie = True
 
-    
-
 class Tas():
     def __init__(self,x,y):
         self.x = x
         self.y = y
-
-        
+       
 class Controleur():
     def __init__(self, type): #main-ish..
         self.m = Modele(self)
         if type == "c":
             self.a = VueConsole(self)
+            self.console()
         else:
-            self.a = VueTkinter(self)
+            self.graphique()
             
-        self.jouer()
 
-        
+    def console(self):
+        self.jouer()
+       
+    def graphique(self):
+        self.m.lancerJeu()
+        self.m.changerNiveau()
+        self.a = VueTkinter(self)
+        self.a.root.mainloop() 
+
+    
     def jouer(self):
         while True:
             self.menu()     
@@ -441,8 +491,8 @@ class Controleur():
 
 #================================ MAIN===================================================
 if __name__ == '__main__':
-    t = input("[c]onsole ou [g]raphique")
-    c = Controleur(t)
+    #t = input("[c]onsole ou [g]raphique")
+    c = Controleur("g")
 
 
         
