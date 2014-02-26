@@ -1,16 +1,116 @@
 import random
 import os
+from tkinter import *
+
+class VueTkinter():
+    pass
+
+class VueConsole():
+    iconeDocteur = "@"
+    caseVide = "-" * len(iconeDocteur) #ce qui sera affiche quand il y a une case vide
+    
+    def __init__(self, parent):
+        self.parent = parent
+        self.matriceJeu = []
+
+        for i in range(self.parent.getLargeur()):
+            self.matriceJeu.append([])
+            for j in range(self.parent.getHauteur()):
+                self.matriceJeu[i].append(self.caseVide)
+   
+    def clear(self):
+        for i in range(255):
+            print()
+    
+    def clearOs(self):            # Ca, ca c'est bien. Je t'aime Francois.
+        if os.sys.platform == 'win32':
+            os.system("cls")
+        else:
+            os.system('clear')
+    
+    def actualiserPlateauJeu(self):
+        for i in range(self.parent.getHauteur()):
+            for j in range(self.parent.getLargeur()):
+                self.matriceJeu[j][i] = self.caseVide #Vide la matrice d'affichage
+                
+        for i in self.parent.getDaleks():
+            #print("daleks ", i.x, " ", i.y)
+            self.matriceJeu[i.x][i.y] = 'X' * (len(self.iconeDocteur) -1) #Ajoute les daleks dans la matrice d'affichage
+            
+        for i in self.parent.getTas():
+            #print("tas ", i.x, " ", i.y)
+            self.matriceJeu[i.x][i.y] = '*'  * (len(self.iconeDocteur) -1) #Ajoute les tas dans la matrice d'affichage
+            
+        for i in self.parent.getDocteur():
+            #print("docteur ", i.x, " ", i.y)
+            self.matriceJeu[i.x][i.y] = self.iconeDocteur #Ajoute le docteur dans la matrice d'affichage
+            
+    def afficherJeu(self):
+        self.clear()
+        self.actualiserPlateauJeu()
+        for i in range(self.parent.getHauteur()):
+            for j in range(self.parent.getLargeur()):
+                print(self.matriceJeu[j][i], end="")
+            print()
+        print("Points: ", self.parent.getPoints())
+        print("Niveau: ", self.parent.getNiveau())
+        for i in self.parent.getDocteur():
+            print("Nombre de zappeur: ", i.nbZap)
+            
+    def afficherMenu(self):
+        print("1. Jouer")
+        print("2. Options")
+        print("3. Highscores")
+        print("4. GTFO")
+        
+    def afficherOption(self):
+        print("1. Changer taille de la planche de jeu")
+        print("2. Changer l'icone du docteur")
+        print("3. Changer les touches")
+        print("4. GTFO")
+        
+    def getTouche(self):
+        return input("Touche: ")
+        
+    def getChoix(self):
+        return input("Votre choix: ")
+        
+    def nouvelleLargeur(self):
+        return input("Nouvelle largeur: ")
+    
+    def nouvelleHauteur(self):
+        return input("Nouvelle hauteur: ")
+    
+    def changerIcone(self):
+        print("Nous vous deconseillons X, -, et *")
+        print("Votre avatar present est: ", self.iconeDocteur)
+        self.iconeDocteur = input("Quel sera votre nouvel avatar? ")  
+        self.caseVide = self.caseVide + "-" * len(self.iconeDocteur)
+    
+    def finJeu(self):
+        print("Vous etes mort.\nVotre score est de: ", self.parent.getPoints())
+        return input("Appuyer sur une touche pour retourner au menu...")
+    
 
 class Modele():
-    def __init__(self):
+    highscore = {}
+    def __init__(self, parent):
         self.hauteur = 20
         self.largeur = 30
+        self.parent = parent
     
     #options
     def changerTaille(self, largeur, hauteur):
-        self.hauteur = hauteur
-        self.largeur = largeur
-        
+        if (largeur < 100 and hauteur < 100) and (largeur > 5 and hauteur > 5):
+            self.hauteur = hauteur
+            self.largeur = largeur
+    
+    def lancerJeu(self):
+        self.j = Jeu(self)
+    
+    def changerNiveau(self):
+        self.j.changementNiveau()
+    
     #quitter
     def quitter(self):
         exit()
@@ -23,19 +123,23 @@ class Jeu():
     daleks = []
     docteur = []
     tas = []
-    def __init__(self, niveau, points,hauteur, largeur):
+    def __init__(self, parent):
         self.finPartie = False
-        self.debutNiveau(niveau, points)
-        self.hauteur = hauteur
-        self.largeur = largeur
-        self.docteur.append(Docteur(self.hauteur, self.largeur))
+        self.tas = []
+        self.debutNiveau(0,0)
+        self.hauteur = parent.hauteur
+        self.largeur = parent.largeur
+        self.docteur = []
+        self.docteur.append(Docteur(self))
+        self.parent = parent
     
     def debutNiveau(self,niveau, points):
+        self.daleks = []
         self.niveau = niveau
         self.nbDaleks = self.nbDalekInc * niveau
         self.points = points
         for i in range(self.nbDaleks):
-            self.daleks.append(Dalek(self.hauteur, self.largeur))
+            self.daleks.append(Dalek(self))
     
     def changementNiveau(self):
         self.tas = []   #Enleve les tas
@@ -58,13 +162,14 @@ class Jeu():
                 self.daleks.remove(tas)
                 
 class Dalek():
-    def __init__(self, largeur, hauteur):
+    def __init__(self, parent):
+        self.parent = parent
         valide = False
         while not valide:
-            self.x = random.randrange(0, largeur)
-            self.y = random.randrange(0, hauteur)
-            if len(Jeu.daleks) != 0:
-                for i in Jeu.daleks:
+            self.x = random.randrange(0, self.parent.largeur)
+            self.y = random.randrange(0, self.parent.hauteur)
+            if len(self.parent.daleks) != 0:
+                for i in self.parent.daleks:
                     if i.x == self.x and i.y == self.y:
                         valide = False
                         break
@@ -74,7 +179,7 @@ class Dalek():
                 valide = True
     
     def deplacement(self):
-        for j in Jeu.docteur:
+        for j in self.parent.docteur:
             if self.x > j.x:
                 self.x = self.x - 1
             if self.x < j.x:
@@ -85,29 +190,28 @@ class Dalek():
                 self.y = self.y + 1
                 
     def collision(self):
-        for i in Jeu.daleks:
+        for i in self.parent.daleks:
             if self is i:
                 pass
             else:
                 if self.x == i.x and self.y == i.y:
                     t = Tas(self.x,self.y)
-                    Jeu.tas.append(t)
+                    self.parent.tas.append(t)
                     return True
-        for i in Jeu.tas:
+        for i in self.parent.tas:
             if self.x == i.x and self.y == i.y:
                 return True
 
 class Docteur():
-    def __init__(self, largeur, hauteur):
+    def __init__(self, parent):
         #self.estMort = False
+        self.parent = parent
         valide = False
         while not valide:
-            self.hauteur = hauteur
-            self.largeur = largeur
-            self.x = random.randrange(0, self.hauteur)
-            self.y = random.randrange(0, self.largeur)
-            if len(Jeu.daleks) != 0:
-                for i in Jeu.daleks:
+            self.x = random.randrange(0, self.parent.largeur)
+            self.y = random.randrange(0, self.parent.hauteur)
+            if len(self.parent.daleks) != 0:
+                for i in self.parent.daleks:
                     if i.x == self.x and i.y == self.y:
                         valide = False
                         break
@@ -118,40 +222,46 @@ class Docteur():
         self.nbZap = 0 #Pour le niveau 0
     
     def teleportation(self):
+        nb = 0
         valide = False
         while not valide:
-            nouveauX = random.randrange(0,self.largeur)
-            nouveauY = random.randrange(0,self.hauteur)
-            for i in Jeu.daleks:
+            if nb > (self.parent.largeur * self.parent.hauteur * 2):
+                return
+            nouveauX = random.randrange(0, self.parent.largeur)
+            nouveauY = random.randrange(0, self.parent.hauteur)
+            for i in self.parent.daleks:
                 if abs(i.x - nouveauX) <= 1 and abs(i.y - nouveauY) <= 1:
                     valide = False
+                    nb = nb + 1
                     break
                 else:
                     valide = True
             if valide == True:
-                for i in Jeu.tas:
+                for i in self.parent.tas:
                     if i.x == nouveauX and i.y == nouveauY:
                         valide = False
+                        nb = nb + 1
                         break;
                     else:
                         valide = True
-                        #deux fois la meme place
+                            #deux fois la meme place
+        
         self.x = nouveauX
         self.y = nouveauY        
     
     def deplacementValide(self, nouvellePosX, nouvellePosY):
-         if nouvellePosX < 0 or nouvellePosX >= self.largeur:
+         if nouvellePosX < 0 or nouvellePosX >= self.parent.largeur:
              return False
-         if nouvellePosY < 0 or nouvellePosY >= self.hauteur:
+         if nouvellePosY < 0 or nouvellePosY >= self.parent.hauteur:
              return False
-         for i in Jeu.tas:
+         for i in self.parent.tas:
              if i.x == nouvellePosX and i.y == nouvellePosY:
                  return False
         #Regarder aussi les daleks ?
         
          return True 
        
-    def deplacement(self, direction, jeu):
+    def deplacement(self, direction):
         # Prend le nombre sur le pave numerique qui definie la direction.
         if direction == "1":      # bas-gauche
             if self.deplacementValide(self.x - 1, self.y + 1):
@@ -186,28 +296,28 @@ class Docteur():
         elif direction == "t":    # teleportage
             self.teleportation()
         elif direction == "z":    # zappeur
-            self.zapper(jeu)
+            self.zapper()
     
-    def zapper(self, jeu):
+    def zapper(self):
         if(self.nbZap > 0):
             aDelete = []
-            for i in jeu.daleks:
+            for i in self.parent.daleks:
                 if (abs(i.x - self.x) <= 1) and (abs(i.y - self.y) <=1):
                     aDelete.append(i)
                     #jeu.daleks.remove(i)
-                    jeu.points += jeu.nbPointsDalekMort
+                    self.parent.points += self.parent.nbPointsDalekMort
             if len(aDelete) > 0:
                 for i in aDelete:
-                    jeu.daleks.remove(i)
+                    self.parent.daleks.remove(i)
             self.nbZap -= 1
             
-    def estMort(self, jeu):
-        for i in Jeu.daleks:
+    def estMort(self):
+        for i in self.parent.daleks:
             if self.x == i.x and self.y == i.y:
-                jeu.finPartie = True
-        for i in Jeu.tas:
+                self.parent.finPartie = True
+        for i in self.parent.tas:
             if self.x == i.x and self.y == i.y:
-                jeu.finPartie = True
+                self.parent.finPartie = True
 
     
 
@@ -216,99 +326,80 @@ class Tas():
         self.x = x
         self.y = y
 
-class Affichage():
-    caseVide = "-" #ce qui sera affiche quand il y a une case vide
-    
-    def __init__(self, largeur, hauteur, points, niveau):
-        self.hauteur = hauteur
-        self.largeur = largeur
-        self.points = points
-        self.niveau = niveau
-        self.matriceJeu = []
-        for i in range(self.largeur):
-            self.matriceJeu.append([])
-            for j in range(self.hauteur):
-                self.matriceJeu[i].append(self.caseVide)
-
-    
-    def clear(self):            # Ca, ca c'est bien. Je t'aime Francois.
-        if os.sys.platform == 'win32':
-            os.system("cls")
-        else:
-            os.system('clear')
-    
-    def actualiserPlateauJeu(self):
-        for i in range(self.hauteur):
-            for j in range(self.largeur):
-                self.matriceJeu[j][i] = self.caseVide #Vide la matrice d'affichage
-                
-        for i in Jeu.daleks:
-            print(i.x, " ", i.y)
-            self.matriceJeu[i.x][i.y] = 'X' #Ajoute les daleks dans la matrice d'affichage
-            
-        for i in Jeu.tas:
-            self.matriceJeu[i.x][i.y] = '*' #Ajoute les tas dans la matrice d'affichage
-            
-        for i in Jeu.docteur:
-            self.matriceJeu[i.x][i.y] = '@' #Ajoute le docteur dans la matrice d'affichage
-            
-    def afficherJeu(self):
-        self.clear()
-        self.actualiserPlateauJeu()
-        for i in range(self.hauteur):
-            for j in range(self.largeur):
-                print(self.matriceJeu[j][i], end="")
-            print()
-        print("Points: ", self.points)
-        print("Niveau: ", self.niveau)
-        for i in Jeu.docteur:
-            print("Nombre de zappeur: ", i.nbZap)
-            
-    def afficherMenu(self):
-        print("1. Jouer")
-        print("2. Options")
-        print("3. Highscores")
-        print("4. GTFO")
-        
-    def afficherOption(self):
-        print("1. Changer taille de la planche de jeu")
-        print("2. Changer l'icone du docteur")
-        print("3. Changer les touches")
-        print("4. GTFO")
         
 class Controleur():
-    def __init__(self): #main-ish..
-        self.m = Modele()
-        self.a = Affichage(self.m.largeur, self.m.hauteur,0,0)   
+    def __init__(self, type): #main-ish..
+        self.m = Modele(self)
+        if type == "c":
+            self.a = VueConsole(self)
+        else:
+            self.a = VueTkinter(self)
+            
+        self.jouer()
+
         
+    def jouer(self):
+        while True:
+            self.menu()     
+            self.partie()
+                              
+            self.a.afficherJeu()
+            #print(len(j.daleks))
+            self.a.finJeu()
+
+    def menu(self):
         repValide = False
         while not repValide:
+            self.a.clear()
             self.a.afficherMenu()
-            reponse = self.menu()
+            reponse = self.a.getChoix()
             if reponse == "1":
                 repValide = True
-                self.j = Jeu(0,0, self.m.largeur, self.m.hauteur)
-        while self.j.finPartie == False:
-            print(len(self.j.daleks))
-            self.j.changementNiveau()
-            while len(self.j.daleks) > 0 and self.j.finPartie == False:
+                self.m.lancerJeu()
+            elif reponse == "2":
+                self.option()
+            elif reponse == "3":
+                pass
+                #self.a.afficherHighscore()
+            elif reponse == "4":
+                self.m.quitter()
+                
+    def option(self):
+        self.a.afficherOption()
+        repValide = False
+        while not repValide:
+            reponse = self.a.getChoix()
+            if reponse == "1":
+                repValide = True
+                try:
+                    self.m.changerTaille(int(self.a.nouvelleLargeur()), int(self.a.nouvelleHauteur()))
+                except :
+                    pass
+                
+            elif reponse == "2":
+                repValide = True
+                self.a.changerIcone()
+            elif reponse == "3":
+                repValide = True
+                print("Peut-etre plus tard, si z'etes chanceux et gentils.")
+            elif reponse == "4":
+                return
+    
+    def partie(self):
+        while self.m.j.finPartie == False:
+            print(len(self.m.j.daleks))
+            self.m.changerNiveau()
+            while len(self.m.j.daleks) > 0 and self.m.j.finPartie == False:
                 self.a.afficherJeu()
-                touche = input("Touche: ")
+                touche = self.a.getTouche()
                 toucheValide = self.toucheValide(touche)
                 if  toucheValide == True :
                     #le docteur doit se deplacer avant les daleks !
-                    Jeu.docteur[0].deplacement(touche, self.j)
-                    self.j.deplaceDaleks()
-                    self.j.collisionDaleks()
-                    Jeu.docteur[0].estMort(self.j)
-                
-        self.a.afficherJeu()
-        #print(len(j.daleks))
-        input("GAME OVER")
-        
-    def menu(self):
-        return input("Votre choix: ")
-        
+                    self.m.j.docteur[0].deplacement(touche)
+                    self.m.j.deplaceDaleks()
+                    self.m.j.collisionDaleks()
+                    self.m.j.docteur[0].estMort()
+                        
     def toucheValide(self,touche):
         if touche == "1":      # bas-gauche
             return True
@@ -333,10 +424,25 @@ class Controleur():
         elif touche == "z":    # zappeur
             return True
    
- 
+    def getLargeur(self):
+        return self.m.largeur
+    def getHauteur(self):
+       return self.m.hauteur
+    def getPoints(self):
+       return self.m.j.points
+    def getNiveau(self):
+       return self.m.j.niveau
+    def getDaleks(self):
+       return self.m.j.daleks
+    def getDocteur(self):
+       return self.m.j.docteur
+    def getTas(self):
+       return self.m.j.tas
+
 #================================ MAIN===================================================
 if __name__ == '__main__':
-    c = Controleur()
+    t = input("[c]onsole ou [g]raphique")
+    c = Controleur(t)
 
 
         
