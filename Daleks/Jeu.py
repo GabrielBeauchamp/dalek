@@ -452,7 +452,6 @@ class Controleur():
             elif reponse == "2":
                 self.option()
             elif reponse == "3":
-                #self.m.sauvegarderHighscore()
                 self.a.afficherHighscore(self.m.highscore)
             elif reponse == "4":
                 self.m.quitter()
@@ -490,8 +489,10 @@ class Controleur():
                     #le docteur doit se deplacer avant les daleks !
                     self.m.j.docteur[0].deplacement(touche)
                     self.m.j.deplaceDaleks()
-                    self.m.j.collisionDaleks()
                     self.m.j.docteur[0].estMort()
+                    if self.m.j.finPartie == False:
+                        self.m.j.collisionDaleks()
+                    
                         
     def toucheValide(self,touche):
         if touche == "1":      # bas-gauche
@@ -534,8 +535,8 @@ class Controleur():
 
 #================================ MAIN===================================================
 if __name__ == '__main__':
-   # t = input("[c]onsole ou [g]raphique")
-    c = Controleur("c")
+    t = input("[c]onsole ou [g]raphique")
+    c = Controleur(t)
 
 
         
