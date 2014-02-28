@@ -109,11 +109,23 @@ class VueConsole():
         print("4. GTFO")
         
     def afficherOption(self):
+        self.clear()
         print("1. Changer taille de la planche de jeu")
         print("2. Changer l'icone du docteur")
         print("3. Changer les touches")
         print("4. GTFO")
         
+    def afficherHighscore(self,highscore):  
+        self.clear()
+        print("Meilleurs joueurs")
+        print("----")
+        if len(highscore) > 0 :
+            for i in highscore:
+                print(highscore.index(i)+ 1,". Nom:", i[0], " Points:", i[1])
+        else:
+            print("Il n'y a aucun score !")
+        return input("Appuyer sur une touche pour retourner au menu...")
+            
     def getTouche(self):
         return input("Touche: ")
         
@@ -134,10 +146,13 @@ class VueConsole():
     
     def finJeu(self):
         print("Vous etes mort.\nVotre score est de: ", self.parent.getPoints())
-        return input("Appuyer sur une touche pour retourner au menu...")
+        nom = input("Votre nom : ")
+        input("Appuyer sur une touche pour retourner au menu...")
+        return [nom, self.parent.getPoints()]
     
 class Modele():
-    highscore = {}
+   # highscore = {}
+    highscore = []
     def __init__(self, parent):
         self.hauteur = 20
         self.largeur = 30
@@ -154,6 +169,31 @@ class Modele():
     
     def changerNiveau(self):
         self.j.changementNiveau()
+        
+    def nouveauScore(self, infoScore):
+        self.highscore.append(infoScore)
+        self.highscore.sort(key=lambda highscore: highscore[1], reverse=True)
+        self.sauvegarderHighscore()
+    
+    def ouvrirHighscore(self):
+        try:
+            fichierHighscore = open("score.txt", 'r')
+            self.highscore = [] #Pour etre sur d'avoir seulement les socres du fichier
+            for line in fichierHighscore:
+                self.highscore.append(line.split(','))
+            for i in self.highscore:
+                i[1] = int(i[1])
+            fichierHighscore.close()
+        except:
+            pass
+    
+    def sauvegarderHighscore(self):
+       # for key, value in self.highscore.items():
+       #     print(key, " ", value)
+        fichierHighscore = open("score.txt", 'w')
+        for i in self.highscore:
+            fichierHighscore.write((str(i[0]) + ","+ str(i[1])+ "\n"))
+        fichierHighscore.close()
     
     #quitter
     def quitter(self):
@@ -395,12 +435,15 @@ class Controleur():
                               
             self.a.afficherJeu()
             #print(len(j.daleks))
-            self.a.finJeu()
+            infoScore = self.a.finJeu()
+            self.m.nouveauScore(infoScore)
+            
 
     def menu(self):
         repValide = False
         while not repValide:
             self.a.clear()
+            self.m.ouvrirHighscore()
             self.a.afficherMenu()
             reponse = self.a.getChoix()
             if reponse == "1":
@@ -409,8 +452,8 @@ class Controleur():
             elif reponse == "2":
                 self.option()
             elif reponse == "3":
-                pass
-                #self.a.afficherHighscore()
+                #self.m.sauvegarderHighscore()
+                self.a.afficherHighscore(self.m.highscore)
             elif reponse == "4":
                 self.m.quitter()
                 
@@ -491,8 +534,8 @@ class Controleur():
 
 #================================ MAIN===================================================
 if __name__ == '__main__':
-    t = input("[c]onsole ou [g]raphique")
-    c = Controleur("t")
+   # t = input("[c]onsole ou [g]raphique")
+    c = Controleur("c")
 
 
         
