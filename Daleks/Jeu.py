@@ -16,11 +16,21 @@ class VueTkinter():
 
         self.root = Tk()
         self.root.title("Dalek qui est le fun quand on y joue avec nos culculatrices")
+        self.panedWindowAction = PanedWindow(orient=VERTICAL)
+        self.panedWindowAction.pack(side=RIGHT)
+        #self.canevasAction = Canvas(self.root, height=self.parent.getHauteur() * self.espacePixel, width= 100, bg="grey")
+        #self.canevasAction.pack(side=RIGHT, fill=Y)
         self.canevas = Canvas(self.root, height=self.parent.getHauteur() * self.espacePixel, width=self.parent.getLargeur() * self.espacePixel, bg ="white")
-        self.canevas.pack()
+        self.canevas.pack(side=TOP)
+        self.panedWindowInfo = PanedWindow(orient=VERTICAL)
+        self.panedWindowInfo.pack(side=BOTTOM)
+        #self.canevasInfo =  Canvas(self.root, height= 50, width=self.parent.getLargeur() * self.espacePixel, bg ="grey")
+        #self.canevasInfo.pack(side=BOTTOM)
         self.actualiserPlateauJeu()
         self.dessinerGrille()
         self.afficherJeu()
+        self.afficherActionJeu()
+        self.afficherInfoJeu()
         
     def actualiserPlateauJeu(self):
         for i in range(self.parent.getHauteur()):
@@ -40,15 +50,32 @@ class VueTkinter():
             self.matriceJeu[i.x][i.y] = self.iconeDocteur #Ajoute le docteur dans la matrice d'affichage
     
     def dessinerGrille(self):
-        for i in range(self.parent.getLargeur()):
+        for i in range(self.parent.getLargeur()+1):
             self.canevas.create_line(i*self.espacePixel,0,i*self.espacePixel,self.parent.getHauteur() * self.espacePixel)
-        for i in range(self.parent.getHauteur()):
+        for i in range(self.parent.getHauteur()+1):
             self.canevas.create_line(0, i*self.espacePixel,self.parent.getLargeur() * self.espacePixel,i*self.espacePixel)
             
     def afficherJeu(self):
          for i in range(self.parent.getHauteur()):
             for j in range(self.parent.getLargeur()):
                 self.canevas.create_text(j*self.espacePixel+self.espacePixel/2, i*self.espacePixel+self.espacePixel/2, text= self.matriceJeu[j][i])
+                
+    def afficherActionJeu(self):
+        self.buttonTeleporteur = Button(self.root, text='Teleporteur',command=self.parent.getDocteur()[0].teleportation)
+        self.panedWindowAction.add(self.buttonTeleporteur)
+        self.buttonZappeur = Button(self.root, text='Zappeur',command=self.parent.getDocteur()[0].zapper)
+        self.panedWindowAction.add(self.buttonZappeur)
+                
+    def afficherInfoJeu(self):
+        self.labelPoints = Label(self.panedWindowInfo, text=str("Points: " + str(self.parent.getPoints())))
+        self.labelNiveau = Label(self.panedWindowInfo, text=str("Niveau: " + str(self.parent.getNiveau())))
+        self.labelNbZappeur = Label(self.panedWindowInfo, text=str("Nombre de zappeur: " + str(self.parent.getDocteur()[0].nbZap)))
+        self.panedWindowInfo.add(self.labelNiveau)
+        self.panedWindowInfo.add(self.labelPoints)
+        self.panedWindowInfo.add(self.labelNbZappeur)
+        #self.canevasInfo.create_text(27,40,text=str("Points: " + str(self.parent.getPoints())))
+        #self.canevasInfo.create_text(29,20,text=str("Niveau: " + str(self.parent.getNiveau())))
+        #self.canevasInfo.create_text(300, 20, text=str("Nombre de zappeur: " + str(self.parent.getDocteur()[0].nbZap)))
                 
 class VueConsole():
     iconeDocteur = "@"
