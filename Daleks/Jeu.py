@@ -19,23 +19,15 @@ class VueTkinter():
         self.panedWindowAction = PanedWindow(orient=VERTICAL)
         self.panedWindowAction.pack(side=RIGHT)
         self.canevas = Canvas(self.root, height=self.parent.getHauteur() * self.espacePixel, width=self.parent.getLargeur() * self.espacePixel, bg ="white")
-        #self.canevas.bind("<Key>", self.toucheMouvement)
+        #self.canevas.bind("<Button-1>", self.clickMouvement)
         self.root.bind("<Key>", self.toucheMouvement)
         self.canevas.pack(side=TOP)
         self.panedWindowInfo = PanedWindow(orient=VERTICAL)
-        self.panedWindowInfo.pack(side=BOTTOM)
         self.actualiserPlateauJeu()
         self.dessinerGrille()
         self.afficherJeu()
         self.afficherActionJeu()
         self.afficherInfoJeu()
-        
-        #Ajout des labels infos
-        self.panedWindowInfo.add(self.labelNiveau)
-        self.panedWindowInfo.add(self.labelPoints)
-        self.panedWindowInfo.add(self.labelNbZappeur)
-        print("4")
-        
         
     def actualiserPlateauJeu(self):
         self.canevas.delete("piece")#Enleve les piece de l'affichage
@@ -73,9 +65,20 @@ class VueTkinter():
         self.panedWindowAction.add(self.buttonZappeur)
                 
     def afficherInfoJeu(self):
+        #Enleve le panedWindow
+        self.panedWindowInfo.destroy()
+        #Refait le panedWindow
+        self.panedWindowInfo = PanedWindow(orient=VERTICAL)
+        
         self.labelPoints = Label(self.panedWindowInfo, text=str("Points: " + str(self.parent.getPoints())))
         self.labelNiveau = Label(self.panedWindowInfo, text=str("Niveau: " + str(self.parent.getNiveau())))
         self.labelNbZappeur = Label(self.panedWindowInfo, text=str("Nombre de zappeur: " + str(self.parent.getDocteur()[0].nbZap)))
+        
+        #Ajout des labels infos
+        self.panedWindowInfo.add(self.labelNiveau)
+        self.panedWindowInfo.add(self.labelPoints)
+        self.panedWindowInfo.add(self.labelNbZappeur)
+        self.panedWindowInfo.pack(side=BOTTOM)
         
     def teleportation(self):
         self.parent.partieAction("t")
@@ -87,7 +90,7 @@ class VueTkinter():
         self.parent.partieAction("z")
         self.actualiserPlateauJeu()
         self.afficherJeu()
-        self.afficherInfoJeu() 
+        self.afficherInfoJeu()
     
     def toucheMouvement(self,event=None):
         self.root.focus_set()
@@ -288,6 +291,7 @@ class Jeu():
         aDelete = []
         for i in self.daleks:
             if i.collision() == True:
+                print(self.points)
                 self.points += self.nbPointsDalekMort
                 aDelete.append(i)
         if len(aDelete) > 0:
