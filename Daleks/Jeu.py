@@ -80,27 +80,27 @@ class VueTkinter():
         self.panedWindowInfo.add(self.labelNbZappeur)
         self.panedWindowInfo.pack(side=BOTTOM)
         
+    def partieAction(self, touche):
+        if self.parent.toucheValide(touche) == True :
+                finPartie = self.parent.partieAction(touche)
+                self.actualiserPlateauJeu()
+                self.afficherJeu()
+                self.afficherInfoJeu()
+                if finPartie == True:
+                    print("fin de la partie !")
+        
     def teleportation(self):
-        self.parent.partieAction("t")
-        self.actualiserPlateauJeu()
-        self.afficherJeu()
-        self.afficherInfoJeu() 
+        self.partieAction("t")
         
     def zappeur(self):
-        self.parent.partieAction("z")
-        self.actualiserPlateauJeu()
-        self.afficherJeu()
-        self.afficherInfoJeu()
+        self.partieAction("z")
     
     def toucheMouvement(self,event=None):
         self.root.focus_set()
         touche = str(event.char)
-        toucheValide = self.parent.toucheValide(touche)
-        if  toucheValide == True :
-            self.parent.partieAction(touche)
-            self.actualiserPlateauJeu()
-            self.afficherJeu()
-            self.afficherInfoJeu()
+        #toucheValide = self.parent.toucheValide(touche)
+        self.partieAction(touche)
+            
                 
 class VueConsole():
     iconeDocteur = "@"
@@ -291,7 +291,6 @@ class Jeu():
         aDelete = []
         for i in self.daleks:
             if i.collision() == True:
-                print(self.points)
                 self.points += self.nbPointsDalekMort
                 aDelete.append(i)
         if len(aDelete) > 0:
@@ -547,12 +546,16 @@ class Controleur():
                         self.m.j.collisionDaleks()
                         
     def partieAction(self, touche):
-        self.m.j.docteur[0].deplacement(touche)
-        self.m.j.deplaceDaleks()
-        self.m.j.docteur[0].estMort()
         if self.m.j.finPartie == False:
-            self.m.j.collisionDaleks()
-                    
+            self.m.j.docteur[0].deplacement(touche)
+            self.m.j.deplaceDaleks()
+            self.m.j.docteur[0].estMort()
+            if self.m.j.finPartie == False:
+                self.m.j.collisionDaleks()
+                if len(self.m.j.daleks) == 0:
+                    self.m.changerNiveau()
+                return False #Retourne si la partie est fini !
+        return True #Retourne si la partie est fini !
                         
     def toucheValide(self,touche):
         if touche == "1":      # bas-gauche
@@ -577,7 +580,7 @@ class Controleur():
             return True
         elif touche == "z":    # zappeur
             return True
-   
+      
     def getLargeur(self):
         return self.m.largeur
     def getHauteur(self):
