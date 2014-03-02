@@ -18,21 +18,27 @@ class VueTkinter():
         self.root.title("Dalek qui est le fun quand on y joue avec nos culculatrices")
         self.panedWindowAction = PanedWindow(orient=VERTICAL)
         self.panedWindowAction.pack(side=RIGHT)
-        #self.canevasAction = Canvas(self.root, height=self.parent.getHauteur() * self.espacePixel, width= 100, bg="grey")
-        #self.canevasAction.pack(side=RIGHT, fill=Y)
         self.canevas = Canvas(self.root, height=self.parent.getHauteur() * self.espacePixel, width=self.parent.getLargeur() * self.espacePixel, bg ="white")
+        #self.canevas.bind("<Key>", self.toucheMouvement)
+        self.root.bind("<Key>", self.toucheMouvement)
         self.canevas.pack(side=TOP)
         self.panedWindowInfo = PanedWindow(orient=VERTICAL)
         self.panedWindowInfo.pack(side=BOTTOM)
-        #self.canevasInfo =  Canvas(self.root, height= 50, width=self.parent.getLargeur() * self.espacePixel, bg ="grey")
-        #self.canevasInfo.pack(side=BOTTOM)
         self.actualiserPlateauJeu()
         self.dessinerGrille()
         self.afficherJeu()
         self.afficherActionJeu()
         self.afficherInfoJeu()
         
+        #Ajout des labels infos
+        self.panedWindowInfo.add(self.labelNiveau)
+        self.panedWindowInfo.add(self.labelPoints)
+        self.panedWindowInfo.add(self.labelNbZappeur)
+        print("4")
+        
+        
     def actualiserPlateauJeu(self):
+        self.canevas.delete("piece")#Enleve les piece de l'affichage
         for i in range(self.parent.getHauteur()):
             for j in range(self.parent.getLargeur()):
                 self.matriceJeu[j][i] = "" #Vide la matrice d'affichage
@@ -58,24 +64,40 @@ class VueTkinter():
     def afficherJeu(self):
          for i in range(self.parent.getHauteur()):
             for j in range(self.parent.getLargeur()):
-                self.canevas.create_text(j*self.espacePixel+self.espacePixel/2, i*self.espacePixel+self.espacePixel/2, text= self.matriceJeu[j][i])
-                
+                self.canevas.create_text(j*self.espacePixel+self.espacePixel/2, i*self.espacePixel+self.espacePixel/2, text= self.matriceJeu[j][i], tags="piece")
+    
     def afficherActionJeu(self):
-        self.buttonTeleporteur = Button(self.root, text='Teleporteur',command=self.parent.getDocteur()[0].teleportation)
+        self.buttonTeleporteur = Button(self.root, text='Teleporteur',command=self.teleportation)
         self.panedWindowAction.add(self.buttonTeleporteur)
-        self.buttonZappeur = Button(self.root, text='Zappeur',command=self.parent.getDocteur()[0].zapper)
+        self.buttonZappeur = Button(self.root, text='Zappeur',command=self.zappeur)
         self.panedWindowAction.add(self.buttonZappeur)
                 
     def afficherInfoJeu(self):
         self.labelPoints = Label(self.panedWindowInfo, text=str("Points: " + str(self.parent.getPoints())))
         self.labelNiveau = Label(self.panedWindowInfo, text=str("Niveau: " + str(self.parent.getNiveau())))
         self.labelNbZappeur = Label(self.panedWindowInfo, text=str("Nombre de zappeur: " + str(self.parent.getDocteur()[0].nbZap)))
-        self.panedWindowInfo.add(self.labelNiveau)
-        self.panedWindowInfo.add(self.labelPoints)
-        self.panedWindowInfo.add(self.labelNbZappeur)
-        #self.canevasInfo.create_text(27,40,text=str("Points: " + str(self.parent.getPoints())))
-        #self.canevasInfo.create_text(29,20,text=str("Niveau: " + str(self.parent.getNiveau())))
-        #self.canevasInfo.create_text(300, 20, text=str("Nombre de zappeur: " + str(self.parent.getDocteur()[0].nbZap)))
+        
+    def teleportation(self):
+        self.parent.partieAction("t")
+        self.actualiserPlateauJeu()
+        self.afficherJeu()
+        self.afficherInfoJeu() 
+        
+    def zappeur(self):
+        self.parent.partieAction("z")
+        self.actualiserPlateauJeu()
+        self.afficherJeu()
+        self.afficherInfoJeu() 
+    
+    def toucheMouvement(self,event=None):
+        self.root.focus_set()
+        touche = str(event.char)
+        toucheValide = self.parent.toucheValide(touche)
+        if  toucheValide == True :
+            self.parent.partieAction(touche)
+            self.actualiserPlateauJeu()
+            self.afficherJeu()
+            self.afficherInfoJeu()
                 
 class VueConsole():
     iconeDocteur = "@"
@@ -519,6 +541,13 @@ class Controleur():
                     self.m.j.docteur[0].estMort()
                     if self.m.j.finPartie == False:
                         self.m.j.collisionDaleks()
+                        
+    def partieAction(self, touche):
+        self.m.j.docteur[0].deplacement(touche)
+        self.m.j.deplaceDaleks()
+        self.m.j.docteur[0].estMort()
+        if self.m.j.finPartie == False:
+            self.m.j.collisionDaleks()
                     
                         
     def toucheValide(self,touche):
