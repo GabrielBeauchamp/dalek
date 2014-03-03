@@ -228,24 +228,18 @@ class Modele():
         self.sauvegarderHighscore()
     
     def ouvrirHighscore(self):
-        try:
-            fichierHighscore = open("score.txt", 'r')
-            self.highscore = [] #Pour etre sur d'avoir seulement les socres du fichier
+        self.highscore = [] #Pour etre sur d'avoir seulement les socres du fichier
+        with open("score.txt", 'r') as fichierHighscore:
             for line in fichierHighscore:
                 self.highscore.append(line.split(','))
             for i in self.highscore:
                 i[1] = int(i[1])
-            fichierHighscore.close()
-        except:
-            pass
-    
+
+        
     def sauvegarderHighscore(self):
-       # for key, value in self.highscore.items():
-       #     print(key, " ", value)
-        fichierHighscore = open("score.txt", 'w')
-        for i in self.highscore:
-            fichierHighscore.write((str(i[0]) + ","+ str(i[1])+ "\n"))
-        fichierHighscore.close()
+        with open("score.txt", 'w') as fichierHighscore:
+            for i in self.highscore:
+                fichierHighscore.write((str(i[0]) + ","+ str(i[1])+ "\n"))
     
     #quitter
     def quitter(self):
