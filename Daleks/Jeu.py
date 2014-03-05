@@ -4,8 +4,8 @@ from tkinter import *
 
 class VueTkinter():
     def __init__(self, parent):
+        self.nomJoueur = os.getlogin()
         self.iconeDocteur = "@"
-        #self.caseVide = "-"
         self.espacePixel = 20
         self.parent = parent
         self.matriceJeu = []
@@ -13,22 +13,12 @@ class VueTkinter():
             self.matriceJeu.append([])
             for j in range(self.parent.getHauteur()):
                 self.matriceJeu[i].append("")
-
         self.root = Tk()
         self.root.title("Dalek qui est le fun quand on y joue avec nos culculatrices")
-        self.panedWindowAction = PanedWindow(orient=VERTICAL)
-        self.panedWindowAction.pack(side=RIGHT)
-        self.canevas = Canvas(self.root, height=self.parent.getHauteur() * self.espacePixel, width=self.parent.getLargeur() * self.espacePixel, bg ="white")
-        #self.canevas.bind("<Button-1>", self.clickMouvement)
-        self.root.bind("<Key>", self.toucheMouvement)
-        self.canevas.pack(side=TOP)
-        self.panedWindowInfo = PanedWindow(orient=VERTICAL)
-        self.actualiserPlateauJeu()
-        self.dessinerGrille()
-        self.afficherJeu()
-        self.afficherActionJeu()
-        self.afficherInfoJeu()
-        
+        self.parent.getHighscore()
+        self.afficherMenu()
+
+    
     def actualiserPlateauJeu(self):
         self.canevas.delete("piece")#Enleve les piece de l'affichage
         for i in range(self.parent.getHauteur()):
@@ -79,28 +69,207 @@ class VueTkinter():
         self.panedWindowInfo.add(self.labelPoints)
         self.panedWindowInfo.add(self.labelNbZappeur)
         self.panedWindowInfo.pack(side=BOTTOM)
+    
+    def afficherOption(self):
+        self.panedWindowMenu.destroy()#Enleve le menu
+        self.panedWindowOption = PanedWindow(self.root, orient=VERTICAL)
+        self.panedWindowOption.add(Button(self.panedWindowOption, text= "Changer la resolution", command=self.afficherOptionResolution))
+        self.panedWindowOption.add(Button(self.panedWindowOption, text= "Changer l'icone du personnage", command=self.afficherOptionIcone))
+        self.panedWindowOption.pack()
+    
+    def afficherOptionIcone(self):
+        self.panedWindowOption.destroy()
+        self.panedWindowOptionIcone =  PanedWindow(self.root, orient=VERTICAL)
+        self.panedWindowOptionIcone.add(Label(self.panedWindowOptionIcone, text="Nous vous deconseillons X, -, et *"))
+        self.panedWindowOptionIcone.add(Label(self.panedWindowOptionIcone, text="Votre avatar present est: " + str(self.iconeDocteur), pady= 50))
+        self.iconeEntre = Entry()
+        self.panedWindowOptionIcone.add(self.iconeEntre)
+        self.panedWindowOptionIcone.add(Button(self.panedWindowOptionIcone, text= "ok", command=self.changeIcone))
+        self.panedWindowOptionIcone.pack()
+    
+    def afficherOptionResolution(self):
+        self.panedWindowOption.destroy()
+        self.panedWindowOptionResolution =  PanedWindow(self.root, orient=VERTICAL)
+        self.panedWindowOptionResolution.add(Label(self.panedWindowOptionResolution, text="Largeur : "))
+        self.largeurEntre = Entry(justify=RIGHT)
+        self.largeurEntre.insert(0,str(self.parent.getLargeur()))
+        self.panedWindowOptionResolution.add(self.largeurEntre)
+        self.panedWindowOptionResolution.add(Label(self.panedWindowOptionResolution, text="Hauteur : "))
+        self.hauteurEntre = Entry(justify=RIGHT)
+        self.hauteurEntre.insert(0,str(self.parent.getHauteur()))
+        self.panedWindowOptionResolution.add(self.hauteurEntre)
+        self.panedWindowOptionResolution.add(Button(self.panedWindowOptionResolution, text= "ok", command=self.changeResolution))
+        self.panedWindowOptionResolution.pack()
+        
+    def changeResolution(self):
+        try:
+            self.parent.changerTaille((int)(self.largeurEntre.get()), (int)(self.hauteurEntre.get()))
+        except:
+            pass
+        self.afficherMenu()
+    
+    def changeIcone(self):
+        if self.iconeEntre.get() != "":
+            self.iconeDocteur = self.iconeEntre.get()
+        self.afficherMenu()
+        
+    def deleteJeu(self):
+        try:
+            self.canevas.destroy()
+            self.panedWindowAction.destroy()
+            self.panedWindowInfo.destroy()
+        except:
+            pass
+        try:
+            self.root.unbind("<Key>", self.toucheMouvement)
+        except:
+            pass
+    def afficherMenu(self):
+        self.deleteJeu()
+        try:
+            self.panedWindowOption.destroy()
+        except:
+            pass
+        try:
+            self.panedWindowOptionIcone.destroy()
+        except:
+            pass
+        try:
+            self.panedWindowOptionResolution.destroy()
+        except:
+            pass
+        self.panedWindowMenu = PanedWindow(orient=VERTICAL)
+        self.buttonJouer = Button(self.root, text='Jouer',command=self.jouer)
+        self.buttonOption = Button(self.root, text='Option',command=self.afficherOption)
+        self.buttonHighscore = Button(self.root, text='Highscore',command=self.afficherHighscore)
+        self.buttonQuitter = Button(self.root, text='Quitter',command=self.quitter)
+        self.panedWindowMenu.add(self.buttonJouer)
+        self.panedWindowMenu.add(self.buttonOption)
+        self.panedWindowMenu.add(self.buttonHighscore)
+        self.panedWindowMenu.add(self.buttonQuitter)
+        self.panedWindowMenu.pack()
+        
+    def afficherHighscore(self):
+        self.panedWindowMenu.destroy()#Enleve le menu
+        highscore = self.parent.getHighscore()
+        self.canevasTexte = Canvas(self.root, height=200, width=500 * self.espacePixel)
+        Label(self.canevasTexte, text="Meilleurs joueurs", padx = 250, pady= 15).pack()
+        if len(highscore) > 0 :
+            for i in highscore:
+                Label(self.canevasTexte, padx = 250, pady= 15, text=str(str(highscore.index(i)+ 1) + ". Nom: " +  i[0] + " Points: " + str(i[1]))).pack()
+        else:
+            Label(self.canevasTexte, padx = 250, pady= 15, text="Il n'y a aucun score !").pack()
+            
+        self.canevasTexte.pack()
+        self.buttonMenu = Button(self.root, text='Menu',command=self.retourneMenuAprHighScore)
+        self.buttonMenu.pack()
+    
+    def retourneMenuAprHighScore(self):
+        self.canevasTexte.destroy()
+        self.buttonMenu.destroy()
+        self.afficherMenu()
+        
+    def jouer(self):
+        self.panedWindowMenu.destroy()#Enleve le menu
+        self.parent.commencerPartie()        
+        self.panedWindowAction = PanedWindow(orient=VERTICAL)
+        self.panedWindowAction.pack(side=RIGHT)
+        self.canevas = Canvas(self.root, height=self.parent.getHauteur() * self.espacePixel, width=self.parent.getLargeur() * self.espacePixel, bg ="white")
+        self.canevas.bind("<Button-1>", self.clickMouvement)
+        self.root.bind("<Key>", self.toucheMouvement)
+        self.canevas.pack(side=TOP)
+        self.panedWindowInfo = PanedWindow(orient=VERTICAL)
+        self.actualiserPlateauJeu()
+        self.dessinerGrille()
+        self.afficherJeu()
+        self.afficherActionJeu()
+        self.afficherInfoJeu()
+        
+    def quitter(self):
+        self.root.destroy()
+        exit(0)
+    
+    def updateHighScore(self):
+        self.nomJoueur = self.nomEntre.get()
+        if self.nomJoueur == "":
+            self.nomJoueur = os.getlogin()
+        self.parent.updateHighscore([self.nomJoueur, self.parent.getPoints()])
+        self.popUp.destroy()
         
     def partieAction(self, touche):
         if self.parent.toucheValide(touche) == True :
-                finPartie = self.parent.partieAction(touche)
+                self.finPartie = self.parent.partieAction(touche)
                 self.actualiserPlateauJeu()
                 self.afficherJeu()
                 self.afficherInfoJeu()
-                if finPartie == True:
+                if self.finPartie == True:
                     print("fin de la partie !")
+                    try:
+                        self.root.unbind("<Key>", self.toucheMouvement)
+                    except:
+                        pass
+                    self.popUpName()
+                    self.root.wait_window(self.popUp)
+                    try:
+                        if self.root.winfo_exists():
+                            self.afficherMenu()
+                    except:
+                        pass #La fenetre est deja fermee
         
     def teleportation(self):
-        self.partieAction("t")
+        if self.finPartie == False:
+            self.partieAction("t")
         
     def zappeur(self):
-        self.partieAction("z")
+        if self.finPartie == False:
+            self.partieAction("z")
     
     def toucheMouvement(self,event=None):
         self.root.focus_set()
         touche = str(event.char)
         #toucheValide = self.parent.toucheValide(touche)
         self.partieAction(touche)
-            
+    
+    def clickMouvement(self, event= None):
+        x = int(event.x/self.espacePixel)
+        y = int(event.y/self.espacePixel)
+        docx = self.parent.getDocteur()[0].x
+        docy = self.parent.getDocteur()[0].y
+        if abs(docx - x) <= 1 and abs(docy - y) <= 1:
+            self.clickAction(x, y, docx, docy)
+        #print("x:", x, " y: ", y, docx," ",  docy)  
+        
+    def clickAction(self, x, y, docx, docy):
+        if docx - 1 == x and docy + 1 == y:
+            self.partieAction("1")
+        elif docx == x and docy + 1 == y:
+            self.partieAction("2")
+        elif docx + 1 == x and docy + 1 == y:
+            self.partieAction("3")
+        elif docx - 1 == x and docy == y:
+            self.partieAction("4")
+        elif docx == x and docy == y:
+            self.partieAction("5")
+        elif docx + 1 == x and docy == y:
+            self.partieAction("6")
+        elif docx - 1 == x and docy - 1 == y:
+            self.partieAction("7")
+        elif docx == x and docy - 1 == y:
+            self.partieAction("8")
+        elif docx + 1 == x and docy - 1 == y:
+            self.partieAction("9")
+        
+    def popUpName (self):
+        self.popUp= self.top= Toplevel(self.root)
+        #self.popUp.wm_overrideredirect(True)
+        self.popUp.protocol("WM_DELETE_WINDOW", self.updateHighScore)
+        Label(self.popUp, text="Fin partie.", padx = 250, pady= 15).pack()
+        Label(self.popUp, text="Voici votre score:  " + str(self.parent.getPoints()), padx = 50, pady= 15).pack()
+        Label(self.popUp, text="Veuillez entrer votre nom: ", padx = 50, pady= 15).pack()
+        self.nomEntre = Entry(self.popUp)
+        self.nomEntre.pack()
+        
+        Button(self.popUp, text="Valider", command=self.updateHighScore).pack()
                 
 class VueConsole():
     iconeDocteur = "@"
@@ -158,14 +327,13 @@ class VueConsole():
         print("1. Jouer")
         print("2. Options")
         print("3. Highscores")
-        print("4. GTFO")
+        print("4. Quitter")
         
     def afficherOption(self):
         self.clear()
         print("1. Changer taille de la planche de jeu")
         print("2. Changer l'icone du docteur")
-        print("3. Changer les touches")
-        print("4. GTFO")
+        print("3. Quitter")
         
     def afficherHighscore(self,highscore):  
         self.clear()
@@ -471,8 +639,6 @@ class Controleur():
         self.jouer()
        
     def graphique(self):
-        self.m.lancerJeu()
-        self.m.changerNiveau()
         self.a = VueTkinter(self)
         self.a.root.mainloop() 
 
@@ -521,9 +687,6 @@ class Controleur():
                 repValide = True
                 self.a.changerIcone()
             elif reponse == "3":
-                repValide = True
-                print("Peut-etre plus tard, si z'etes chanceux et gentils.")
-            elif reponse == "4":
                 return
     
     def partie(self):
@@ -577,7 +740,12 @@ class Controleur():
             return True
         elif touche == "z":    # zappeur
             return True
-      
+    
+    def commencerPartie(self):
+        self.m.lancerJeu()
+        self.m.changerNiveau()
+    def changerTaille(self,largeur, hauteur):
+        self.m.changerTaille(largeur, hauteur)
     def getLargeur(self):
         return self.m.largeur
     def getHauteur(self):
@@ -592,7 +760,11 @@ class Controleur():
        return self.m.j.docteur
     def getTas(self):
        return self.m.j.tas
-
+    def getHighscore(self):
+        self.m.ouvrirHighscore()
+        return self.m.highscore
+    def updateHighscore(self, score):
+        self.m.nouveauScore(score)
 #================================ MAIN===================================================
 if __name__ == '__main__':
     t = input("[c]onsole ou [g]raphique")
