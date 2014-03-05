@@ -1,4 +1,5 @@
 Jeu de daleks.
+Dont la documentation est sur papier, et sur demande.
 
 Pour jouer:
 	Lancer le fichier Jeu.py
