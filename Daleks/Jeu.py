@@ -228,12 +228,15 @@ class Modele():
         self.sauvegarderHighscore()
     
     def ouvrirHighscore(self):
-        self.highscore = [] #Pour etre sur d'avoir seulement les socres du fichier
-        with open("score.txt", 'r') as fichierHighscore:
-            for line in fichierHighscore:
-                self.highscore.append(line.split(','))
-            for i in self.highscore:
-                i[1] = int(i[1])
+        try:
+            self.highscore = [] #Pour etre sur d'avoir seulement les socres du fichier
+            with open("score.txt", 'r') as fichierHighscore:
+                for line in fichierHighscore:
+                    self.highscore.append(line.split(','))
+                for i in self.highscore:
+                    i[1] = int(i[1])
+        except:
+            pass #Si le fichier n'est pas cree
 
         
     def sauvegarderHighscore(self):
