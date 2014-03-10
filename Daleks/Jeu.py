@@ -371,8 +371,9 @@ class VueConsole():
         return [nom, self.parent.getPoints()]
     
 class Modele():
-   # highscore = {}
     highscore = []
+    nbScore = 10 # Le nombre de Highscore sauvegardes
+    
     def __init__(self, parent):
         self.hauteur = 20
         self.largeur = 30
@@ -393,6 +394,8 @@ class Modele():
     def nouveauScore(self, infoScore):
         self.highscore.append(infoScore)
         self.highscore.sort(key=lambda highscore: highscore[1], reverse=True)
+        if len(self.highscore) > self.nbScore:
+           self.highscore = self.highscore[0:self.nbScore]
         self.sauvegarderHighscore()
     
     def ouvrirHighscore(self):
