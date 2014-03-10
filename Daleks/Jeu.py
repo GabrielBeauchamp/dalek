@@ -152,20 +152,22 @@ class VueTkinter():
     def afficherHighscore(self):
         self.panedWindowMenu.destroy()#Enleve le menu
         highscore = self.parent.getHighscore()
-        self.canevasTexte = Canvas(self.root, height=200, width=500 * self.espacePixel)
-        Label(self.canevasTexte, text="Meilleurs joueurs", padx = 250, pady= 15).pack()
+        self.panedWindowHighscore = PanedWindow(orient=VERTICAL) 
+        
+        self.panedWindowHighscore.add(Label(self.panedWindowHighscore, text="Meilleurs joueurs", padx = 250, pady= 15))
+
         if len(highscore) > 0 :
             for i in highscore:
-                Label(self.canevasTexte, padx = 250, pady= 15, text=str(str(highscore.index(i)+ 1) + ". Nom: " +  i[0] + " Points: " + str(i[1]))).pack()
+                 self.panedWindowHighscore.add(Label(self.panedWindowHighscore, padx = 250, pady= 15, text=str(str(highscore.index(i)+ 1) + ". Nom: " +  i[0] + " Points: " + str(i[1]))))
         else:
-            Label(self.canevasTexte, padx = 250, pady= 15, text="Il n'y a aucun score !").pack()
+            self.panedWindowHighscore.add(Label(self.panedWindowHighscore, padx = 250, pady= 15, text="Il n'y a aucun score !"))
             
-        self.canevasTexte.pack()
+        self.panedWindowHighscore.pack()
         self.buttonMenu = Button(self.root, text='Menu',command=self.retourneMenuAprHighScore)
         self.buttonMenu.pack()
     
     def retourneMenuAprHighScore(self):
-        self.canevasTexte.destroy()
+        self.panedWindowHighscore.destroy()
         self.buttonMenu.destroy()
         self.afficherMenu()
         
